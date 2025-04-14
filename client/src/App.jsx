@@ -1,20 +1,23 @@
 import React from 'react'
 import { Route, Routes } from 'react-router-dom'
-import AdminPage from '../pages/AdminPage'
-import LoginPage from '../pages/LoginPage'
-import LayoutPage from '../pages/LayoutPage'
+import LayoutPage from './pages/LayoutPage'
+import LoginPage from './pages/LoginPage'
+import AdminPage from './pages/AdminPage'
 
 function App() {
   return (
     <>
-    
+
       <Routes>
         <Route element={<LayoutPage />}>
           <Route index element={<AdminPage />} />
-          <Route path="/login" element={<LoginPage />} />
+
         </Route>
+        <Route path="/login" element={<LoginPage />} />
       </Routes>
     </>
+
+
   )
 }
 
