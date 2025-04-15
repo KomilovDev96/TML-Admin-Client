@@ -111,6 +111,13 @@ const LayoutPage = () => {
                 <Link to={"/"} style={{ height: " 50px" }}>
                     <img style={{ maxWidth: "50px", height: "50px", borderRadius: "50%" }} src={logo} alt='png' />
                 </Link>
+                <div>
+                    <Button >
+                        <Link to={"/"}>
+                            Главная страница
+                        </Link>
+                    </Button>
+                </div>
                 <Button onClick={handleLogout}>
                     Выход
                 </Button>
