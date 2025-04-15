@@ -4,18 +4,45 @@ import Lottie from "lottie-react";
 import groovyWalkAnimation from './sigin.json'
 import Logo from './photo_2025-03-18_12-14-35.jpg'
 import { LoginStyle, LotiFiy } from './Style';
+import { useMutation } from '@tanstack/react-query';
+import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
+
 
 
 function LoginPage() {
+    const navigate = useNavigate();
+    // Api cols
+    const loginMutation = useMutation({
+        mutationFn: async (data) => {
+            console.log(data)
+            const response = await axios.post('http://localhost:3000/api/auth/login', data)
+            return await response.data.result
+        },
+        onSuccess: (data) => {
+            console.log(data, "Успешный вход")
+            localStorage.setItem('token', data.token);
+            toast.success('Вход выполнен!');
+            setTimeout(() => navigate('/'), 1500); // Редирект через 1.5 сек
+
+        },
+        onError: (error) => {
+            if (error.response?.status === 500) {
+                toast.error(error.response.data.message)
+            }
+            message.error(error?.response?.data?.message || 'Ошибка входа');
+        },
+    });
+
+
     const [form] = Form.useForm();
     const onFinish = values => {
-        console.log('Success:', values);
+        loginMutation.mutate(values);
         form.resetFields();
     };
     const onFinishFailed = errorInfo => {
-        console.log('Failed:', errorInfo);
-        form.resetFields();
-
+        console.log('Поля не должны быть пусты:', errorInfo);
     };
     return (
         <LoginStyle>
@@ -36,10 +63,10 @@ function LoginPage() {
                 <img src={Logo} alt="jpg" />
                 <Form.Item
                     name="phoneNumber"
-                    label=" Number"
+                    label="Number"
                     rules={[{ required: true, message: 'Please input your phone number!' }]}
                 >
-                    <Input style={{ width: '100%' }} />
+                    <Input />
                 </Form.Item>
 
                 <Form.Item
@@ -51,10 +78,17 @@ function LoginPage() {
                 </Form.Item>
 
                 <Form.Item label={null}>
-                    <Button type="primary" htmlType="submit">
-                        Submit
+                    <Button
+                        type="primary"
+                        htmlType="submit"
+                        loading={loginMutation.isPending}
+                        block
+                    >
+                        Войти
                     </Button>
                 </Form.Item>
+                <ToastContainer />
+
             </Form>
         </LoginStyle>
     )
