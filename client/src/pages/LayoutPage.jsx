@@ -40,7 +40,7 @@ const LayoutPage = () => {
     const UserItems = [
         getItem('Games', '1', <PieChartOutlined />, [
             {
-                label: generateSiderLink('Create games', '/admin/create'),
+                label: generateSiderLink('Create games', '/game/create'),
                 key: "2"
             },
             {

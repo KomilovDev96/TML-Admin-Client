@@ -7,6 +7,7 @@ import NotFoundPage from './pages/NotFoundPage'
 import ProtectedRoute from './routers/ProtectedRoute'
 import GamePage from './pages/GamePage'
 import UsersPage from './pages/UsersPage'
+import GameCretePage from './pages/GamePage/CretePage'
 
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
           <Route element={<LayoutPage />}>
             <Route index element={<AdminPage />} />
             <Route path='/game' element={<GamePage />} />
+            <Route path='/game/create' element={<GameCretePage />} />
             <Route path='/users' element={<UsersPage />} />
           </Route>
         </Route>
