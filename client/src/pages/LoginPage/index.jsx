@@ -62,16 +62,16 @@ function LoginPage() {
             >
                 <img src={Logo} alt="jpg" />
                 <Form.Item
-                    name="phoneNumber"
-                    label="Number"
-                    rules={[{ required: true, message: 'Please input your phone number!' }]}
+                    label="Email"
+                    name="email"
+                    rules={[{ required: true, message: 'Please input your email!' }]}
                 >
                     <Input />
                 </Form.Item>
 
                 <Form.Item
                     label="Password"
-                    name="referral_link"
+                    name="password"
                     rules={[{ required: true, message: 'Please input your password!' }]}
                 >
                     <Input.Password />
