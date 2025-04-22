@@ -27,10 +27,7 @@ function LoginPage() {
 
         },
         onError: (error) => {
-            if (error.response?.status === 500) {
-                toast.error(error.response.data.message)
-            }
-            message.error(error?.response?.data?.message || 'Ошибка входа');
+            toast.error(error?.response?.data?.message || 'Ошибка входа');
         },
     });
 

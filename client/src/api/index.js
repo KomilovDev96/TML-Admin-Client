@@ -2,7 +2,7 @@ import axios from "axios";
 
 
 const api = axios.create({
-    baseURL: "http://37.252.21.71:3000/api/swagger",
+    baseURL: import.meta.env.VITE_API_KEY,
 });
 
 // Handle all configuration of request
