@@ -2,7 +2,7 @@ import axios from "axios";
 
 
 const api = axios.create({
-    baseURL: "http://localhost:3000/api",
+    baseURL: "http://37.252.21.71:3000/api/swagger",
 });
 
 // Handle all configuration of request
