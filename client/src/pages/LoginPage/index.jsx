@@ -8,6 +8,7 @@ import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import api from '../../api';
 
 
 
@@ -16,12 +17,10 @@ function LoginPage() {
     // Api cols
     const loginMutation = useMutation({
         mutationFn: async (data) => {
-            console.log(data)
-            const response = await axios.post('http://localhost:3000/api/auth/login', data)
+            const response = await api.post('/auth/login', data)
             return await response.data.result
         },
         onSuccess: (data) => {
-            console.log(data, "Успешный вход")
             localStorage.setItem('token', data.token);
             toast.success('Вход выполнен!');
             setTimeout(() => navigate('/'), 1500); // Редирект через 1.5 сек

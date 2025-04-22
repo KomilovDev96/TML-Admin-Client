@@ -1,14 +1,56 @@
 import { Button, Space, Table, Tag } from 'antd';
-import React, { useState } from 'react'
-
+import React, { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query';
+import api from '../../api';
 function UsersPage() {
-    const [filteredInfo, setFilteredInfo] = useState({});
-    const [sortedInfo, setSortedInfo] = useState({});
-    const handleChange = (pagination, filters, sorter) => {
-        console.log('Various parameters', pagination, filters, sorter);
-        setFilteredInfo(filters);
-        setSortedInfo(sorter);
+    const fetchUsers = async (
+        page,
+        limit,
+    ) => {
+        const params = { page, limit };
+        const response = await api.post('/v1/users/findAll', { params });
+        return response.data;
     };
+
+    const [pagination, setPagination] = useState({
+        current: 1,
+        pageSize: 10,
+        total: 0,
+        showSizeChanger: true,
+        pageSizeOptions: ['10', '20', '50'],
+    });
+
+    const [filters, setFilters] = useState({
+        status: 'active',
+        game_id: 1,
+    });
+
+    const { data, isLoading, isPreviousData } = useQuery({
+        queryKey: ['users', pagination.current, pagination.pageSize],
+        queryFn: () => fetchUsers(
+            pagination.current,
+            pagination.pageSize
+        ),
+        keepPreviousData: true,
+    });
+
+    // Обновляем пагинацию при получении данных
+    useEffect(() => {
+        if (data?.pagination) {
+            setPagination(prev => ({
+                ...prev,
+                current: data.pagination.current,
+                pageSize: data.pagination.perPage,
+                total: data.pagination.totalItem,
+            }));
+        }
+    }, [data?.pagination]);
+
+    const handleTableChange = (newPagination) => {
+        setPagination(newPagination);
+    };
+
+
     const clearFilters = () => {
         setFilteredInfo({});
     };
@@ -24,92 +66,46 @@ function UsersPage() {
     };
     const columns = [
         {
+            title: 'ID',
+            dataIndex: 'id',
+            key: 'id',
+        },
+        {
             title: 'Name',
             dataIndex: 'name',
             key: 'name',
-            render: text => <a>{text}</a>,
         },
         {
-            title: 'Name3',
-            dataIndex: 'name3',
-            key: 'name2',
+            title: 'Status',
+            dataIndex: 'status',
+            key: 'status',
             filters: [
-                { text: 'Joe', value: 'Joe' },
-                { text: 'Jim', value: 'Jim' },
+                { text: 'Active', value: 'active' },
+                { text: 'Inactive', value: 'inactive' },
             ],
-            filteredValue: filteredInfo.name || null,
-            onFilter: (value, record) => record.name.includes(value),
-            sorter: (a, b) => a.name.length - b.name.length,
-            sortOrder: sortedInfo.columnKey === 'name' ? sortedInfo.order : null,
-            ellipsis: true,
         },
         {
-            title: 'Address',
-            dataIndex: 'address',
-            key: 'address',
-        },
-        {
-            title: 'Tags',
-            key: 'tags',
-            dataIndex: 'tags',
-            render: (_, { tags }) => (
-                <>
-                    {tags.map(tag => {
-                        let color = tag.length > 5 ? 'geekblue' : 'green';
-                        if (tag === 'loser') {
-                            color = 'volcano';
-                        }
-                        return (
-                            <Tag color={color} key={tag}>
-                                {tag.toUpperCase()}
-                            </Tag>
-                        );
-                    })}
-                </>
-            ),
-        },
-        {
-            title: 'Action',
-            key: 'action',
-            render: (_, record) => (
-                <Space size="middle">
-                    <a>Invite {record.name}</a>
-                    <a>Delete</a>
-                </Space>
-            ),
+            title: 'Game ID',
+            dataIndex: 'game_id',
+            key: 'game_id',
         },
     ];
-    const data = [
-        {
-            key: '1',
-            name: 'John Brown',
-            age: 32,
-            address: 'New York No. 1 Lake Park',
-            tags: ['nice', 'developer'],
-        },
 
-        {
-            key: '2',
-            name: 'Jim Green',
-            age: 42,
-            address: 'London No. 1 Lake Park',
-            tags: ['loser'],
-        },
-        {
-            key: '3',
-            name: 'Joe Black',
-            age: 32,
-            address: 'Sydney No. 1 Lake Park',
-            tags: ['cool', 'teacher'],
-        },
-    ];
 
     return (
         <div>
             <Button onClick={setAgeSort}>Sort age</Button>
             <Button onClick={clearFilters}>Clear filters</Button>
             <Button onClick={clearAll}>Clear filters and sorters</Button>
-            <Table dataSource={data} columns={columns} />
+            <Table
+                columns={columns}
+                dataSource={data?.result || []}
+                rowKey="id"
+                pagination={pagination}
+                loading={isLoading || isPreviousData}
+                onChange={handleTableChange}
+            />
+
         </div>
     )
 }
