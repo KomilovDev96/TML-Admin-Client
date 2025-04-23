@@ -1,69 +1,28 @@
-import { Button, Space, Table, Tag } from 'antd';
-import React, { useEffect, useState } from 'react'
+import { Button, Input, Space, Table, Tag } from 'antd';
+import React, { useState } from 'react'
 import { useQuery } from '@tanstack/react-query';
 import api from '../../api';
+
 function UsersPage() {
-    const fetchUsers = async (
-        page,
-        limit,
-    ) => {
-        const params = { page, limit };
-        const response = await api.post('/v1/users/findAll', { params });
+    const [page, setPage] = useState(1)
+    const [search, setSearch] = useState('')
+
+    const fetchUsers = async (page, limit = 10) => {
+        const response = await api.post('/v1/users/findAll', {
+            page,
+            limit,
+            status: 'active',
+            game_id: 1,
+        });
         return response.data;
     };
 
-    const [pagination, setPagination] = useState({
-        current: 1,
-        pageSize: 10,
-        total: 0,
-        showSizeChanger: true,
-        pageSizeOptions: ['10', '20', '50'],
-    });
-
-    const [filters, setFilters] = useState({
-        status: 'active',
-        game_id: 1,
-    });
-
-    const { data, isLoading, isPreviousData } = useQuery({
-        queryKey: ['users', pagination.current, pagination.pageSize],
-        queryFn: () => fetchUsers(
-            pagination.current,
-            pagination.pageSize
-        ),
+    const { data, isLoading } = useQuery({
+        queryKey: ['users', page],
+        queryFn: () => fetchUsers(page),
         keepPreviousData: true,
     });
 
-    // Обновляем пагинацию при получении данных
-    useEffect(() => {
-        if (data?.pagination) {
-            setPagination(prev => ({
-                ...prev,
-                current: data.pagination.current,
-                pageSize: data.pagination.perPage,
-                total: data.pagination.totalItem,
-            }));
-        }
-    }, [data?.pagination]);
-
-    const handleTableChange = (newPagination) => {
-        setPagination(newPagination);
-    };
-
-
-    const clearFilters = () => {
-        setFilteredInfo({});
-    };
-    const clearAll = () => {
-        setFilteredInfo({});
-        setSortedInfo({});
-    };
-    const setAgeSort = () => {
-        setSortedInfo({
-            order: 'descend',
-            columnKey: 'age',
-        });
-    };
     const columns = [
         {
             title: 'ID',
@@ -71,51 +30,102 @@ function UsersPage() {
             key: 'id',
         },
         {
-            title: 'Name',
-            dataIndex: 'name',
-            key: 'name',
+            title: 'Имя',
+            dataIndex: 'firstName',
+            key: 'firstName',
         },
         {
-            title: 'Status',
+            title: 'Язык',
+            dataIndex: 'language',
+            key: 'language',
+        },
+        {
+            title: 'Юзернейм',
+            dataIndex: 'userName',
+            key: 'userName',
+        },
+        {
+            title: 'Телеграм ID',
+            dataIndex: 'telegramId',
+            key: 'telegramId',
+            sorter: (a, b) => Number(a.telegramId) - Number(b.telegramId),
+            sortDirections: ['ascend', 'descend'],
+            defaultSortOrder: 'ascend',
+        },
+        {
+            title: 'Steps',
+            key: 'steps',
+            render: (record) => (
+                `${record.step1_score} / 
+                ${record.step2_score} / 
+                ${record.step3_score}  /
+                ${record.step4_score}`
+            ),
+        },
+        {
+            title: 'Баланс',
+            dataIndex: 'balance',
+            key: 'balance',
+        },
+        {
+            title: 'Реф. ссылка',
+            dataIndex: 'referral_link',
+            key: 'referral_link',
+        },
+        {
+            title: 'Пригласил',
+            dataIndex: 'referred_by',
+            key: 'referred_by',
+            render: (value) => value || '—',
+        },
+        {
+            title: 'Статус',
             dataIndex: 'status',
             key: 'status',
-            filters: [
-                { text: 'Active', value: 'active' },
-                { text: 'Inactive', value: 'inactive' },
-            ],
+            render: (status) => (
+                <Tag color={status === 'active' ? 'green' : 'red'}>
+                    {status.toUpperCase()}
+                </Tag>
+            ),
         },
         {
-            title: 'Game ID',
-            dataIndex: 'game_id',
-            key: 'game_id',
+            title: 'Создан',
+            dataIndex: 'created_at',
+            key: 'created_at',
+            render: (text) => new Date(text).toLocaleString(),
         },
     ];
 
+    // 🔍 Фильтрация по telegramId
+    const filteredData = data?.result.filter((user) =>
+        user.telegramId.toString().includes(search)
+    )
 
     return (
         <div>
-            <Button onClick={setAgeSort}>Sort age</Button>
-            <Button onClick={clearFilters}>Clear filters</Button>
-            <Button onClick={clearAll}>Clear filters and sorters</Button>
+            <Space style={{ marginBottom: 16 }}>
+                <Input
+                    placeholder="Поиск по Telegram ID"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    allowClear
+                />
+            </Space>
+
             <Table
                 columns={columns}
-                dataSource={data?.result || []}
+                dataSource={filteredData || []}
+                loading={isLoading}
                 rowKey="id"
-                pagination={pagination}
-                loading={isLoading || isPreviousData}
-                onChange={handleTableChange}
+                pagination={{
+                    current: data?.pagination.current || page,
+                    total: data?.pagination.totalItem || 0,
+                    pageSize: data?.pagination.perPage || 10,
+                    onChange: (newPage) => setPage(newPage),
+                }}
             />
-
         </div>
     )
 }
 
-export default UsersPage
-
-
-
-
-
-
-
-
+export default UsersPage;
