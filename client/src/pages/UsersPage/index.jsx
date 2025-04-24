@@ -1,6 +1,6 @@
-import { Button, Input, Space, Table, Tag } from 'antd';
+import { Button, Descriptions, Drawer, Input, Space, Table, Tag } from 'antd';
 import React, { useState } from 'react'
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import api from '../../api';
 
 function UsersPage() {
@@ -96,22 +96,73 @@ function UsersPage() {
         },
     ];
 
+
+    const fetchUser = async (telegramId) => {
+        const response = await api.post('/v1/users/findByTelegramId', { telegramId });
+        return response.data.result;
+    };
     // 🔍 Фильтрация по telegramId
     const filteredData = data?.result.filter((user) =>
         user.telegramId.toString().includes(search)
     )
+    const [telegramId, setTelegramId] = useState('');
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [userData, setUserData] = useState(null);
+
+    const mutation = useMutation({
+        mutationFn: fetchUser,
+        onSuccess: (data) => {
+            setUserData(data);
+            setIsDrawerOpen(true);
+        },
+        onError: () => {
+            message.error('Пользователь не найден');
+        },
+    });
+
+    const handleSearch = () => {
+        if (!telegramId) {
+            message.warning('Введите Telegram ID');
+            return;
+        }
+        mutation.mutate(telegramId);
+    };
 
     return (
         <div>
-            <Space style={{ marginBottom: 16 }}>
-                <Input
-                    placeholder="Поиск по Telegram ID"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    allowClear
-                />
-            </Space>
-
+            <Input
+                placeholder="Введите Telegram ID"
+                value={telegramId}
+                onChange={(e) => setTelegramId(e.target.value)}
+                style={{ width: 300, marginRight: 8 }}
+            />
+            <Button type="primary" onClick={handleSearch}>
+                Поиск
+            </Button>
+            <Drawer
+                title="Информация о пользователе"
+                placement="right"
+                onClose={() => setIsDrawerOpen(false)}
+                open={isDrawerOpen}
+            >
+                {userData && (
+                    <Descriptions column={1} bordered>
+                        <Descriptions.Item label="ID">{userData.id}</Descriptions.Item>
+                        <Descriptions.Item label="Имя">{userData.firstName}</Descriptions.Item>
+                        <Descriptions.Item label="Юзернейм">@{userData.userName}</Descriptions.Item>
+                        <Descriptions.Item label="Язык">{userData.language}</Descriptions.Item>
+                        <Descriptions.Item label="Telegram ID">{userData.telegramId}</Descriptions.Item>
+                        <Descriptions.Item label="Баланс">{userData.balance}</Descriptions.Item>
+                        <Descriptions.Item label="Статус">{userData.status}</Descriptions.Item>
+                        <Descriptions.Item label="Реферальная ссылка">{userData.referral_link}</Descriptions.Item>
+                        <Descriptions.Item label="Оценки">
+                            step1: {userData.step1_score}, step2: {userData.step2_score},<br />
+                            step3: {userData.step3_score}, step4: {userData.step4_score}
+                        </Descriptions.Item>
+                    </Descriptions>
+                )}
+            </Drawer>
+            
             <Table
                 columns={columns}
                 dataSource={filteredData || []}

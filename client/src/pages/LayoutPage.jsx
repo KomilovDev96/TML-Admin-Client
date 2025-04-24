@@ -40,11 +40,11 @@ const LayoutPage = () => {
     const UserItems = [
         getItem('Games', '1', <PieChartOutlined />, [
             {
-                label: generateSiderLink('Create games', '/game/create'),
+                label: generateSiderLink('List games', '/games'),
                 key: "2"
             },
             {
-                label: generateSiderLink('List games', '/admin/pay'),
+                label: generateSiderLink('List games', '/games'),
                 key: "3"
             },
             {
@@ -58,7 +58,7 @@ const LayoutPage = () => {
                 key: "5"
             },
             {
-                label: generateSiderLink('Получить истории выплат за заданный период', '/admin/pay'),
+                label: generateSiderLink('Exel Export users', '/users/exl'),
                 key: "6"
             },
             {

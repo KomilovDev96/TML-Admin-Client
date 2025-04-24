@@ -19,7 +19,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route element={<LayoutPage />}>
             <Route index element={<AdminPage />} />
-            <Route path='/game' element={<GamePage />} />
+            <Route path='/games' element={<GamePage />} />
             <Route path='/game/create' element={<GameCretePage />} />
             <Route path='/users' element={<UsersPage />} />
           </Route>
