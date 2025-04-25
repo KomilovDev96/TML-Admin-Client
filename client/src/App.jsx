@@ -8,6 +8,10 @@ import ProtectedRoute from './routers/ProtectedRoute'
 import GamePage from './pages/GamePage'
 import UsersPage from './pages/UsersPage'
 import GameCretePage from './pages/GamePage/CretePage'
+import TransactionsPage from './pages/TransactionsPage'
+import MessagesPage from './pages/MessagesPage'
+import StepsPage from './pages/StepsPage'
+import ParticipantsPage from './pages/GamePage/ParticipantsPage'
 
 
 function App() {
@@ -22,6 +26,10 @@ function App() {
             <Route path='/games' element={<GamePage />} />
             <Route path='/game/create' element={<GameCretePage />} />
             <Route path='/users' element={<UsersPage />} />
+            <Route path='/trans' element={<TransactionsPage />} />
+            <Route path='/messagecreate' element={<MessagesPage />} />
+            <Route path='/steps' element={<StepsPage />} />
+            <Route path='/partic' element={<ParticipantsPage />} />
           </Route>
         </Route>
         {/* Резервный редирект для несуществующих путей */}

@@ -1,4 +1,4 @@
-import { Button, Descriptions, Drawer, Input, Space, Table, Tag } from 'antd';
+import { Button, Descriptions, Drawer, Input, Select, Space, Table, Tag } from 'antd';
 import React, { useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query';
 import api from '../../api';
@@ -6,20 +6,26 @@ import api from '../../api';
 function UsersPage() {
     const [page, setPage] = useState(1)
     const [search, setSearch] = useState('')
-
-    const fetchUsers = async (page, limit = 10) => {
-        const response = await api.post('/v1/users/findAll', {
+    const [status, setStatus] = useState('');
+    const fetchUsers = async (page, limit = 10, status = '') => {
+        const payload = {
             page,
             limit,
-            status: 'active',
             game_id: 1,
-        });
+        };
+
+        if (status) {
+            payload.status = status;
+        }
+
+        const response = await api.post('/v1/users/findAll', payload);
         return response.data;
     };
 
+
     const { data, isLoading } = useQuery({
-        queryKey: ['users', page],
-        queryFn: () => fetchUsers(page),
+        queryKey: ['users', page, status],
+        queryFn: () => fetchUsers(page, 10, status),
         keepPreviousData: true,
     });
 
@@ -101,6 +107,7 @@ function UsersPage() {
         const response = await api.post('/v1/users/findByTelegramId', { telegramId });
         return response.data.result;
     };
+
     // 🔍 Фильтрация по telegramId
     const filteredData = data?.result.filter((user) =>
         user.telegramId.toString().includes(search)
@@ -139,6 +146,22 @@ function UsersPage() {
             <Button type="primary" onClick={handleSearch}>
                 Поиск
             </Button>
+            <Space style={{ marginBottom: 16 }}>
+                <Select
+                    placeholder="Статус"
+                    value={status}
+                    onChange={(value) => {
+                        setStatus(value);
+                        setPage(1);
+                    }}
+                    style={{ width: 160, marginLeft: 8 }}
+                    allowClear
+                >
+                    <Select.Option value="active">Активные</Select.Option>
+                    <Select.Option value="inactive">Неактивные</Select.Option>
+                </Select>
+            </Space>
+
             <Drawer
                 title="Информация о пользователе"
                 placement="right"
@@ -162,12 +185,13 @@ function UsersPage() {
                     </Descriptions>
                 )}
             </Drawer>
-            
+
             <Table
                 columns={columns}
                 dataSource={filteredData || []}
                 loading={isLoading}
                 rowKey="id"
+                scroll={{ x: 'max-content' }}
                 pagination={{
                     current: data?.pagination.current || page,
                     total: data?.pagination.totalItem || 0,

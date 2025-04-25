@@ -5,7 +5,6 @@ import groovyWalkAnimation from './sigin.json'
 import Logo from './photo_2025-03-18_12-14-35.jpg'
 import { LoginStyle, LotiFiy } from './Style';
 import { useMutation } from '@tanstack/react-query';
-import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api';

@@ -38,70 +38,42 @@ const LayoutPage = () => {
         };
     }
     const UserItems = [
-        getItem('Games', '1', <PieChartOutlined />, [
+        getItem('Games', 'aasdasdas', <PieChartOutlined />, [
             {
-                label: generateSiderLink('List games', '/games'),
+                label: generateSiderLink('Список игры', '/games'),
+                key: "1"
+            },
+            {
+                label: generateSiderLink('Участники игры', '/partic'),
                 key: "2"
-            },
-            {
-                label: generateSiderLink('List games', '/games'),
-                key: "3"
-            },
-            {
-                label: generateSiderLink('Информация о транзакции выплат', '/admin/info'),
-                key: "4"
             },
         ]),
         getItem('Users', 'sub', <PieChartOutlined />, [
             {
-                label: generateSiderLink('Lists users', '/users'),
+                label: generateSiderLink('Список пользоветелей', '/users'),
+                key: "3"
+            }
+        ]),
+        getItem('Transactions', 'pirce', <PieChartOutlined />, [
+            {
+                label: generateSiderLink('Чеки', '/trans'),
+                key: "4"
+            },
+        ]),
+        getItem('Messages', 'notifika', <PieChartOutlined />, [
+            {
+                label: generateSiderLink('Список сообшение', '/messagecreate'),
                 key: "5"
-            },
-            {
-                label: generateSiderLink('Exel Export users', '/users/exl'),
-                key: "6"
-            },
-            {
-                label: generateSiderLink('Информация о транзакции выплат', '/admin/info'),
-                key: "7"
-            },
-        ]),
-        getItem('Cheks', 'pirce', <PieChartOutlined />, [
-            {
-                label: generateSiderLink('Cheks', '/admin/create'),
-                key: "8"
-            },
-            {
-                label: generateSiderLink('Получить истории выплат за заданный период', '/admin/pay'),
-                key: "9"
-            },
-            {
-                label: generateSiderLink('Информация о транзакции выплат', '/admin/info'),
-                key: "10"
-            },
-        ]),
-        getItem('Notifications', 'notifika', <PieChartOutlined />, [
-            {
-                label: generateSiderLink('Cheks', '/admin/create'),
-                key: "11"
-            },
-            {
-                label: generateSiderLink('Получить истории выплат за заданный период', '/admin/pay'),
-                key: "12"
-            },
-            {
-                label: generateSiderLink('Информация о транзакции выплат', '/admin/info'),
-                key: "13"
             },
         ]),
         getItem('Settings', 'setigns', <PieChartOutlined />, [
             {
-                label: generateSiderLink('Cheks', '/admin/create'),
-                key: "14"
+                label: generateSiderLink('Настойки', '/steps'),
+                key: "6"
             },
             {
                 label: generateSiderLink('Получить истории выплат за заданный период', '/admin/pay'),
-                key: "15"
+                key: "7"
             },
         ]),
     ]

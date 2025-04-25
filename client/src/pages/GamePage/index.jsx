@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { Table, Input, Select, Space, Button } from 'antd';
-import { useQuery } from '@tanstack/react-query';
+import { Table, Input, Select, Space, Button, Popconfirm } from 'antd';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import api from '../../api';
 import CretePage from './CretePage';
+import EditGameModal from './EditGameModal';
+import { toast } from 'react-toastify';
 
 const { Option } = Select;
 
@@ -23,6 +25,30 @@ const GamePage = () => {
     const [limit] = useState(10);
     const [search, setSearch] = useState('');
     const [status, setStatus] = useState('');
+
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [selectedGame, setSelectedGame] = useState(null);
+
+    const openEditModal = (game) => {
+        setSelectedGame(game);
+        setEditModalOpen(true);
+    };
+
+    // Мутация для удаления
+    const deleteGameMutation = useMutation({
+        mutationFn: async (id) => {
+            const response = await api.post('/v1/games/remove', { id });
+            return response.data?.result;
+        },
+        onSuccess: () => {
+            toast.success('Игра удалена');
+            refetch(); // обновляем список
+        },
+        onError: () => {
+            toast.error('Ошибка при удалении');
+        },
+    });
+
 
     const { data, isLoading, refetch } = useQuery({
         queryKey: ['games', page, limit, search, status],
@@ -73,6 +99,24 @@ const GamePage = () => {
                 </>
             ),
         },
+        {
+            title: 'Действия',
+            key: 'actions',
+            render: (_, record) => (
+                <>
+                    <Popconfirm
+                        title="Удалить игру?"
+                        onConfirm={() => deleteGameMutation.mutate(record.id)}
+                        okText="Да"
+                        cancelText="Нет"
+                    >
+                        <Button type="link" danger>Удалить</Button>
+
+                    </Popconfirm>
+                    <Button type="link" onClick={() => openEditModal(record)}>Редактировать</Button>
+                </>
+            ),
+        }
     ];
 
     const handleSearchChange = (e) => {
@@ -118,6 +162,12 @@ const GamePage = () => {
     };
     return (
         <>
+            <EditGameModal
+                visible={editModalOpen}
+                onClose={() => setEditModalOpen(false)}
+                game={selectedGame}
+                refetch={refetch}
+            />
             <Space style={{ marginBottom: 16 }}>
                 <Select
                     loading={isGamesLoading}
@@ -167,6 +217,7 @@ const GamePage = () => {
                 columns={columns}
                 dataSource={data?.result || []}
                 loading={isLoading}
+                scroll={{ x: 'max-content' }}
                 pagination={{
                     current: data?.pagination?.current || 1,
                     total: data?.pagination?.totalItem || 0,
