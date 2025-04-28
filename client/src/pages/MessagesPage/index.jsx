@@ -14,7 +14,7 @@ import {
 import { useMutation, useQuery } from '@tanstack/react-query';
 import api from '../../api';
 
-function MessagesPage() {
+const MessagesPage = () => {
     const [form] = Form.useForm();
     const [page, setPage] = useState(1);
     const [drawerOpen, setDrawerOpen] = useState(false);

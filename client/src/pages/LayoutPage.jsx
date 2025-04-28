@@ -63,17 +63,21 @@ const LayoutPage = () => {
         getItem('Messages', 'notifika', <PieChartOutlined />, [
             {
                 label: generateSiderLink('Список сообшение', '/messagecreate'),
-                key: "5"
+                key: "6"
+            },
+            {
+                label: generateSiderLink('Отправить сообшение юсерам', '/message'),
+                key: "7"
             },
         ]),
         getItem('Settings', 'setigns', <PieChartOutlined />, [
             {
                 label: generateSiderLink('Настойки', '/steps'),
-                key: "6"
+                key: "8"
             },
             {
                 label: generateSiderLink('Получить истории выплат за заданный период', '/admin/pay'),
-                key: "7"
+                key: "9"
             },
         ]),
     ]

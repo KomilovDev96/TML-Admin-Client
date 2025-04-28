@@ -50,13 +50,9 @@ function StepsPage() {
         form.setFieldsValue({
             id: record.id,
             step1_score: record.step1_score,
-            step1_amount: record.step1_amount || 0,
             step2_score: record.step2_score,
-            step2_amount: record.step2_amount || 0,
             step3_score: record.step3_score,
-            step3_amount: record.step3_amount || 0,
             step4_score: record.step4_score,
-            step4_amount: record.step4_amount || 0,
         });
     };
 
@@ -111,17 +107,18 @@ function StepsPage() {
                 width={400}
             >
                 <Form layout="vertical" onFinish={onFinish} form={form}>
-                    <Form.Item name="id" hidden><InputNumber /></Form.Item>
+                    <Form.Item name="id" hidden>
+                        <InputNumber />
+                    </Form.Item>
 
                     {Array.from({ length: 4 }, (_, i) => (
-                        <React.Fragment key={i}>
-                            <Form.Item label={`Step ${i + 1} Score`} name={`step${i + 1}_score`}>
-                                <InputNumber style={{ width: '100%' }} />
-                            </Form.Item>
-                            <Form.Item label={`Step ${i + 1} Amount`} name={`step${i + 1}_amount`}>
-                                <InputNumber style={{ width: '100%' }} />
-                            </Form.Item>
-                        </React.Fragment>
+                        <Form.Item
+                            key={`step${i + 1}_score`}
+                            label={`Step ${i + 1} Score`}
+                            name={`step${i + 1}_score`}
+                        >
+                            <InputNumber style={{ width: '100%' }} />
+                        </Form.Item>
                     ))}
 
                     <Form.Item>

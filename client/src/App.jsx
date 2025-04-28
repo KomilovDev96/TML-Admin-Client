@@ -9,9 +9,10 @@ import GamePage from './pages/GamePage'
 import UsersPage from './pages/UsersPage'
 import GameCretePage from './pages/GamePage/CretePage'
 import TransactionsPage from './pages/TransactionsPage'
-import MessagesPage from './pages/MessagesPage'
 import StepsPage from './pages/StepsPage'
 import ParticipantsPage from './pages/GamePage/ParticipantsPage'
+import MessagesPage from './pages/MessagesPage'
+import SendMessageForm from './pages/MessagesPage/SendMessage'
 
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
             <Route path='/messagecreate' element={<MessagesPage />} />
             <Route path='/steps' element={<StepsPage />} />
             <Route path='/partic' element={<ParticipantsPage />} />
+            <Route path='/message' element={<SendMessageForm />} />
           </Route>
         </Route>
         {/* Резервный редирект для несуществующих путей */}

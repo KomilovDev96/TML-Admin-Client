@@ -39,7 +39,7 @@ function ParticipantsPage() {
     });
     const fetchParticipant = async (id) => {
         const response = await api.post('/v1/participants/findOne', { id });
-        return response.data;
+        return response.data.result;
     };
     const showParticipantDetails = (record) => {
         setSelectedParticipant(record);
@@ -98,7 +98,6 @@ function ParticipantsPage() {
             render: (_, record) => (
                 <Space>
                     <Button onClick={() => showParticipantDetails(record)}>Смотреть</Button>
-                    <Button type="link" onClick={() => openEditDrawer(record)}>Редактировать</Button>
                 </Space>
             ),
         }
@@ -193,6 +192,48 @@ function ParticipantsPage() {
                         <Descriptions.Item label="Номер участника">{participantDetails?.participantNumber}</Descriptions.Item>
                         <Descriptions.Item label="Создано">
                             {new Date(participantDetails?.created_at).toLocaleString()}
+                        </Descriptions.Item>
+
+                        {/* User Info */}
+                        <Descriptions.Item label="Имя пользователя">
+                            {participantDetails?.user?.firstName} {participantDetails?.user?.lastName}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Username Telegram">
+                            @{participantDetails?.user?.userName}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Telegram ID">
+                            {participantDetails?.user?.telegramId}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Баланс пользователя">
+                            {participantDetails?.user?.balance} USDT
+                        </Descriptions.Item>
+
+                        {/* Game Info */}
+                        <Descriptions.Item label="Название игры">
+                            {participantDetails?.game?.name}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Дата начала">
+                            {new Date(participantDetails?.game?.start_date).toLocaleString()}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Дата окончания">
+                            {new Date(participantDetails?.game?.end_date).toLocaleString()}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Статус игры">
+                            {participantDetails?.game?.status}
+                        </Descriptions.Item>
+
+                        {/* Transaction Info */}
+                        <Descriptions.Item label="Тип транзакции">
+                            {participantDetails?.transaction?.type}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Сумма">
+                            {participantDetails?.transaction?.amount} {participantDetails?.transaction?.currency}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Статус транзакции">
+                            {participantDetails?.transaction?.status}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Дата транзакции">
+                            {new Date(participantDetails?.transaction?.created_at).toLocaleString()}
                         </Descriptions.Item>
                     </Descriptions>
                 )}

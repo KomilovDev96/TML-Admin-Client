@@ -7,16 +7,25 @@ function UsersPage() {
     const [page, setPage] = useState(1)
     const [search, setSearch] = useState('')
     const [status, setStatus] = useState('');
-    const fetchUsers = async (page, limit = 10, status = '') => {
-        const payload = {
-            page,
-            limit,
-            game_id: 1,
-        };
+    const [gameId, setGameId] = useState('');
 
-        if (status) {
-            payload.status = status;
-        }
+
+    const fetchGames = async () => {
+        const response = await api.post('/v1/games/findAll', { page: 1, limit: 100 });
+        return response.data.result || [];
+    };
+
+    const { data: games } = useQuery({
+        queryKey: ['games'],
+        queryFn: fetchGames,
+    });
+
+
+
+    const fetchUsers = async (page, limit = 10, status = '', gameId = '') => {
+        const payload = { page, limit };
+        if (status) payload.status = status;
+        if (gameId) payload.game_id = gameId;
 
         const response = await api.post('/v1/users/findAll', payload);
         return response.data;
@@ -24,8 +33,8 @@ function UsersPage() {
 
 
     const { data, isLoading } = useQuery({
-        queryKey: ['users', page, status],
-        queryFn: () => fetchUsers(page, 10, status),
+        queryKey: ['users', page, status, gameId],
+        queryFn: () => fetchUsers(page, 10, status, gameId),
         keepPreviousData: true,
     });
 
@@ -109,9 +118,10 @@ function UsersPage() {
     };
 
     // 🔍 Фильтрация по telegramId
-    const filteredData = data?.result.filter((user) =>
-        user.telegramId.toString().includes(search)
-    )
+    const filteredData = data?.result?.filter((user) =>
+        user?.telegramId?.toString()?.includes(search)
+    ) || [];
+
     const [telegramId, setTelegramId] = useState('');
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [userData, setUserData] = useState(null);
@@ -161,7 +171,22 @@ function UsersPage() {
                     <Select.Option value="inactive">Неактивные</Select.Option>
                 </Select>
             </Space>
-
+            <Select
+                placeholder="Игра"
+                value={gameId}
+                onChange={(value) => {
+                    setGameId(value);
+                    setPage(1);
+                }}
+                style={{ width: 200 }}
+                allowClear
+            >
+                {games?.map((game) => (
+                    <Select.Option key={game.id} value={game.id}>
+                        {game.name}
+                    </Select.Option>
+                ))}
+            </Select>
             <Drawer
                 title="Информация о пользователе"
                 placement="right"

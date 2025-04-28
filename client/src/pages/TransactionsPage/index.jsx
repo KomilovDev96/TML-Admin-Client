@@ -1,6 +1,15 @@
 import React, { useState } from 'react';
-import { Table, Input, Select, Space } from 'antd';
-import { useQuery } from '@tanstack/react-query';
+import {
+    Table,
+    Input,
+    Select,
+    Space,
+    Button,
+    Drawer,
+    Form,
+    message,
+} from 'antd';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import api from '../../api';
 
 const { Option } = Select;
@@ -14,8 +23,12 @@ const fetchTransactions = async ({ page, limit, user_id, currency, type, status 
         type,
         status,
     };
-
     const response = await api.post('/v1/transactions/findAll', payload);
+    return response.data;
+};
+
+const updateTransaction = async (payload) => {
+    const response = await api.post('/v1/transactions/update', payload);
     return response.data;
 };
 
@@ -26,7 +39,11 @@ const TransactionsPage = () => {
     const [type, setType] = useState('');
     const [status, setStatus] = useState('');
 
-    const { data, isLoading } = useQuery({
+    const [drawerOpen, setDrawerOpen] = useState(false);
+    const [currentTx, setCurrentTx] = useState(null);
+    const [form] = Form.useForm();
+
+    const { data, isLoading, refetch } = useQuery({
         queryKey: ['transactions', page, userId, currency, type, status],
         queryFn: () =>
             fetchTransactions({
@@ -40,42 +57,81 @@ const TransactionsPage = () => {
         keepPreviousData: true,
     });
 
+    const mutation = useMutation({
+        mutationFn: updateTransaction,
+        onSuccess: () => {
+            message.success('Статус обновлён');
+            setDrawerOpen(false);
+            refetch();
+        },
+        onError: () => {
+            message.error('Ошибка при обновлении');
+        },
+    });
+
+    const handleEdit = (record) => {
+        setCurrentTx(record);
+        form.setFieldsValue({
+            id: record.id,
+            status: record.status,
+        });
+        setDrawerOpen(true);
+    };
+
     const columns = [
         {
-            title: 'ID', dataIndex: 'id', key: 'id',
-            responsive: ['md'],
+            title: 'ID',
+            dataIndex: 'id',
+            key: 'id',
         },
         {
-            title: 'Пользователь', dataIndex: 'user_id', key: 'user_id',
-            responsive: ['md'],
+            title: 'Пользователь',
+            dataIndex: 'user_id',
+            key: 'user_id',
         },
         {
-            title: 'Тип', dataIndex: 'type', key: 'type',
-            responsive: ['md'],
+            title: 'Тип',
+            dataIndex: 'type',
+            key: 'type',
         },
         {
-            title: 'Валюта', dataIndex: 'currency', key: 'currency',
-            responsive: ['md'],
+            title: 'Валюта',
+            dataIndex: 'currency',
+            key: 'currency',
         },
         {
-            title: 'Сумма', dataIndex: 'amount', key: 'amount',
-            responsive: ['md'],
+            title: 'Сумма',
+            dataIndex: 'amount',
+            key: 'amount',
         },
         {
-            title: 'Баллы', dataIndex: 'score', key: 'score',
-            responsive: ['md'],
+            title: 'Баллы',
+            dataIndex: 'score',
+            key: 'score',
         },
         {
-            title: 'Статус', dataIndex: 'status', key: 'status',
-            responsive: ['md'],
+            title: 'Статус',
+            dataIndex: 'status',
+            key: 'status',
         },
         {
-            title: 'From Address', dataIndex: 'from_address', key: 'from_address',
-            responsive: ['md'],
+            title: 'From Address',
+            dataIndex: 'from_address',
+            key: 'from_address',
         },
         {
-            title: 'TxID', dataIndex: 'txid', key: 'txid',
-            responsive: ['md'],
+            title: 'TxID',
+            dataIndex: 'txid',
+            key: 'txid',
+        },
+        {
+            title: 'Действия',
+            key: 'actions',
+            render: (_, record) => (
+                <Button type="link" onClick={() => handleEdit(record)}>
+                    Редактировать
+                </Button>
+            ),
         },
     ];
 
@@ -103,10 +159,10 @@ const TransactionsPage = () => {
                     value={type}
                     onChange={setType}
                     allowClear
-                    style={{ width: 120 }}
+                    style={{ width: 180 }}
                 >
-                    <Option value="deposit">Deposit</Option>
-                    <Option value="withdraw">Transfer</Option>
+                    <Option value="deposit">Бизга тулов килганлар</Option>
+                    <Option value="withdraw">Баллдан пуллга уткизганлар</Option>
                 </Select>
                 <Select
                     placeholder="Status"
@@ -115,9 +171,9 @@ const TransactionsPage = () => {
                     allowClear
                     style={{ width: 150 }}
                 >
-                    <Option value="pending">pending</Option>
-                    <Option value="completed">completed</Option>
-                    <Option value="failed">failed</Option>
+                    <Option value="pending">Кутиб турганлар</Option>
+                    <Option value="completed">Тастикланганлар</Option>
+                    <Option value="failed">Муофиякатсиз</Option>
                 </Select>
             </Space>
 
@@ -134,6 +190,31 @@ const TransactionsPage = () => {
                 }}
                 scroll={{ x: 'max-content' }}
             />
+
+            <Drawer
+                title="Редактировать статус"
+                open={drawerOpen}
+                onClose={() => setDrawerOpen(false)}
+                width={400}
+            >
+                <Form form={form} layout="vertical" onFinish={mutation.mutate}>
+                    <Form.Item name="id" hidden>
+                        <Input />
+                    </Form.Item>
+                    <Form.Item label="Статус" name="status" rules={[{ required: true }]}>
+                        <Select placeholder="Выберите статус">
+                            <Option value="pending">Кутиб турган</Option>
+                            <Option value="completed">Тастикланган</Option>
+                            <Option value="failed">Муофиякатсиз</Option>
+                        </Select>
+                    </Form.Item>
+                    <Form.Item>
+                        <Button type="primary" htmlType="submit" block loading={mutation.isLoading}>
+                            Сохранить
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </Drawer>
         </>
     );
 };
